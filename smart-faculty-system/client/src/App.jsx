@@ -4,6 +4,7 @@ import FacultyLogin from './pages/FacultyLogin.jsx'
 import FacultyStatusUpdate from './pages/FacultyStatusUpdate.jsx'
 import StudentFacultySearch from './pages/StudentFacultySearch.jsx'
 import StudentLogin from './pages/StudentLogin.jsx'
+import ResetPassword from './pages/ResetPassword.jsx'
 import { getFaculty } from './services/facultyApi.js'
 
 export default function App() {
@@ -15,6 +16,7 @@ export default function App() {
   const [facultyUser, setFacultyUser] = useState(null)
   const [adminUser, setAdminUser] = useState(null)
   const [authMode, setAuthMode] = useState('student')
+  const isResetPage = window.location.pathname === '/reset-password'
 
   useEffect(() => {
     async function loadFaculty() {
@@ -104,9 +106,11 @@ export default function App() {
           <button className={authMode === 'admin' ? 'nav-link nav-link--active' : 'nav-link'} onClick={() => setAuthMode('admin')}>Admin</button>
         </nav>
 
-        {authMode === 'student' && <StudentLogin onLogin={handleStudentLogin} />}
-        {authMode === 'faculty' && <FacultyLogin onLogin={handleFacultyLogin} />}
-        {authMode === 'admin' && <AdminLogin onLogin={handleAdminLogin} />}
+        {isResetPage ? <ResetPassword /> : <>
+          {authMode === 'student' && <StudentLogin onLogin={handleStudentLogin} />}
+          {authMode === 'faculty' && <FacultyLogin onLogin={handleFacultyLogin} />}
+          {authMode === 'admin' && <AdminLogin onLogin={handleAdminLogin} />}
+        </>}
       </main>
     )
   }

@@ -2,7 +2,7 @@ import Student, { parseRollNo } from '../models/Student.js'
 
 export async function registerStudent(request, response) {
   try {
-    const { rollNo, password } = request.body || {}
+    const { rollNo, password, email } = request.body || {}
     const parsed = parseRollNo(rollNo)
 
     if (!parsed) {
@@ -13,6 +13,11 @@ export async function registerStudent(request, response) {
       return response.status(400).json({ message: 'Password must be at least 4 characters long' })
     }
 
+    const normalizedEmail = String(email || '').trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return response.status(400).json({ message: 'A valid email address is required' })
+    }
+
     const existingStudent = await Student.findOne({ rollNo: parsed.rollNo })
     if (existingStudent) {
       return response.status(409).json({ message: 'Student already exists' })
@@ -21,6 +26,7 @@ export async function registerStudent(request, response) {
     const student = await Student.create({
       rollNo: parsed.rollNo,
       password: String(password).trim(),
+      email: normalizedEmail,
       batch: parsed.batch,
       year: parsed.year,
       department: parsed.department,

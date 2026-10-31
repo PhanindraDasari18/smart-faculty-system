@@ -60,7 +60,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--teal); box-shado
 .class-timetable-cell strong { color: var(--teal); }
 .class-timetable-cell span, .class-timetable-cell small { color: var(--muted); }
 .faculty-directory-search { max-width: 420px; margin-bottom: 16px; }
-.faculty-search-controls { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.3fr) minmax(250px, 1.8fr); gap: 12px; align-items: end; margin-bottom: 18px; }
+.faculty-search-controls { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(200px, 1.2fr) minmax(180px, 1fr) minmax(250px, 1.8fr); gap: 12px; align-items: end; margin-bottom: 18px; }
 .faculty-search-controls .faculty-directory-search { max-width: none; margin: 0; }
 .faculty-directory { max-height: 520px; overflow-y: auto; border-top: 1px solid var(--line); }
 .faculty-directory-row { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 20px; padding: 13px 10px; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
@@ -78,6 +78,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--teal); box-shado
 .login-form label { display: grid; gap: 8px; color: var(--muted); font-size: 12px; font-weight: 700; }
 .login-button { padding: 12px 20px; color: white; border: 0; border-radius: 3px; background: var(--teal); font-weight: 700; }
 .login-button:disabled { opacity: 0.7; cursor: wait; }
+.text-action { display: inline-block; margin-top: 16px; padding: 0; border: 0; background: none; color: var(--teal); font-size: 13px; font-weight: 700; text-decoration: underline; }
 .student-content { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr); gap: 20px; align-items: start; }
 .faculty-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(245px, 1fr)); gap: 16px; }
 .faculty-card { width: 100%; padding: 22px; border: 1px solid var(--line); border-top: 3px solid var(--teal); background: var(--paper); box-shadow: 0 8px 22px rgba(34, 65, 59, 0.05); animation: rise-in 400ms ease both; text-align: left; }

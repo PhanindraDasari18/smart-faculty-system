@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { loginStudent, registerStudent } from '../services/facultyApi.js'
+import { loginStudent, registerStudent, requestPasswordReset } from '../services/facultyApi.js'
 
 export default function StudentLogin({ onLogin }) {
   const [mode, setMode] = useState('login')
   const [rollNo, setRollNo] = useState('')
   const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+  const [forgot, setForgot] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -32,7 +34,7 @@ export default function StudentLogin({ onLogin }) {
 
     try {
       const request = mode === 'register' ? registerStudent : loginStudent
-      const response = await request({ rollNo: cleanedRollNo, password: password.trim() })
+      const response = await request({ rollNo: cleanedRollNo, password: password.trim(), email })
 
       onLogin({
         studentName: response.rollNo,
@@ -49,23 +51,42 @@ export default function StudentLogin({ onLogin }) {
     }
   }
 
+  async function handleForgot(event) {
+    event.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const result = await requestPasswordReset('student', normalizeRollNo(rollNo))
+      setError(result.message)
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section className="page-section">
       <div className="login-panel">
         <p className="eyebrow">Student access</p>
-        <h2>{mode === 'login' ? 'Student login' : 'Create student account'}</h2>
-        <p className="section-description">Use your roll number and password to access faculty details.</p>
+        <h2>{forgot ? 'Reset student password' : mode === 'login' ? 'Student login' : 'Create student account'}</h2>
+        <p className="section-description">{forgot ? 'We will email a reset link to the address registered with this roll number.' : 'Use your roll number and password to access faculty details.'}</p>
 
-        <div className="auth-toggle">
+        {!forgot && <div className="auth-toggle">
           <button type="button" className={mode === 'login' ? 'toggle-button toggle-button--active' : 'toggle-button'} onClick={() => setMode('login')}>
             Login
           </button>
           <button type="button" className={mode === 'register' ? 'toggle-button toggle-button--active' : 'toggle-button'} onClick={() => setMode('register')}>
             Register
           </button>
-        </div>
+        </div>}
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={forgot ? handleForgot : handleSubmit}>
+          {!forgot && mode === 'register' && <label>
+            Email address
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
+          </label>}
+
           <label>
             Roll number
             <input
@@ -76,7 +97,7 @@ export default function StudentLogin({ onLogin }) {
             />
           </label>
 
-          <label>
+          {!forgot && <label>
             Password
             <input
               type="password"
@@ -84,14 +105,15 @@ export default function StudentLogin({ onLogin }) {
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Enter your password"
             />
-          </label>
+          </label>}
 
-          {error && <p className="message message--error">{error}</p>}
+          {error && <p className={error.startsWith('If the account') ? 'success-message' : 'message message--error'}>{error}</p>}
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Register'}
+            {loading ? 'Please wait...' : forgot ? 'Send reset link' : mode === 'login' ? 'Login' : 'Register'}
           </button>
         </form>
+        {mode === 'login' && <button type="button" className="text-action" onClick={() => { setForgot(!forgot); setError('') }}>{forgot ? 'Back to login' : 'Forgot password?'}</button>}
       </div>
     </section>
   )

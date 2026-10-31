@@ -19,10 +19,10 @@ export function getFaculty() {
   return request('/api/faculty')
 }
 
-export function registerStudent({ rollNo, password }) {
+export function registerStudent({ rollNo, password, email }) {
   return request('/api/student/register', {
     method: 'POST',
-    body: JSON.stringify({ rollNo, password })
+    body: JSON.stringify({ rollNo, password, email })
   })
 }
 
@@ -33,11 +33,21 @@ export function loginStudent({ rollNo, password }) {
   })
 }
 
-export function registerFaculty({ facultyId, password }) {
+export function registerFaculty({ facultyId, password, email }) {
   return request('/api/faculty/register', {
     method: 'POST',
-    body: JSON.stringify({ facultyId, password })
+    body: JSON.stringify({ facultyId, password, email })
   })
+}
+
+export function requestPasswordReset(type, id) {
+  const path = type === 'student' ? '/api/student/forgot-password' : '/api/faculty/forgot-password'
+  return request(path, { method: 'POST', body: JSON.stringify({ type, id }) })
+}
+
+export function resetPassword(type, token, password) {
+  const path = type === 'student' ? '/api/student/reset-password' : '/api/faculty/reset-password'
+  return request(path, { method: 'POST', body: JSON.stringify({ type, token, password }) })
 }
 
 export function loginFaculty({ facultyId, password }) {

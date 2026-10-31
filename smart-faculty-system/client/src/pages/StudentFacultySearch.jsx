@@ -99,6 +99,7 @@ export default function StudentFacultySearch({ faculty, loading, error, student 
   const [statusLookupMode, setStatusLookupMode] = useState('class')
   const [selectedProfileId, setSelectedProfileId] = useState('')
   const [profileSearch, setProfileSearch] = useState('')
+  const [availabilityFilter, setAvailabilityFilter] = useState('all')
 
   useEffect(() => {
     if (timeWasSelectedManually || selectedDate !== getToday()) return undefined
@@ -189,6 +190,8 @@ export default function StudentFacultySearch({ faculty, loading, error, student 
 
   const visibleFacultyProfiles = facultyStatusProfiles.filter((profile) =>
     filteredFaculty.some((filteredProfile) => filteredProfile._id === profile._id) &&
+    (availabilityFilter === 'all' ||
+      (availabilityFilter === 'available' ? profile.status === 'Available' : profile.status !== 'Available')) &&
     `${profile.name} ${profile.facultyId} ${getOriginalBranchCode(profile)} ${profile.currentDepartment} ${profile.teachingDepartment} ${profile.department} ${profile.designation}`.toLowerCase().includes(profileSearch.trim().toLowerCase())
   )
   const selectedProfile = visibleFacultyProfiles.find((profile) => profile._id === selectedProfileId) || visibleFacultyProfiles[0] || null
@@ -428,6 +431,14 @@ export default function StudentFacultySearch({ faculty, loading, error, student 
               <span>{filterKind === 'original' ? 'Select original branch' : 'Select teaching department'}</span>
               <select value={selectedFilter} onChange={(event) => setSelectedFilter(event.target.value)}>
                 {filterOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </label>
+            <label className="search-box">
+              <span>Filter by availability</span>
+              <select value={availabilityFilter} onChange={(event) => setAvailabilityFilter(event.target.value)}>
+                <option value="all">All faculty</option>
+                <option value="busy">Busy</option>
+                <option value="available">Free (Available)</option>
               </select>
             </label>
             <label className="search-box faculty-directory-search">

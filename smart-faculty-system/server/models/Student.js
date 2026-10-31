@@ -14,6 +14,14 @@ const studentSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true
+    },
+    passwordResetToken: { type: String, default: undefined, select: false },
+    passwordResetExpires: { type: Date, default: undefined, select: false },
     batch: {
       type: String,
       required: true,

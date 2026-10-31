@@ -24,7 +24,7 @@ function handleControllerError(error, response) {
 
 export async function registerFaculty(request, response) {
   try {
-    const { facultyId, password } = request.body || {}
+    const { facultyId, password, email } = request.body || {}
     const normalizedFacultyId = normalizeFacultyId(facultyId)
 
     if (!normalizedFacultyId) {
@@ -35,6 +35,11 @@ export async function registerFaculty(request, response) {
       return response.status(400).json({ message: 'Password must be at least 4 characters long' })
     }
 
+    const normalizedEmail = String(email || '').trim().toLowerCase()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+      return response.status(400).json({ message: 'A valid email address is required' })
+    }
+
     const existingFaculty = await Faculty.findOne({ facultyId: normalizedFacultyId })
     if (existingFaculty) {
       return response.status(409).json({ message: 'Faculty already exists' })
@@ -43,6 +48,7 @@ export async function registerFaculty(request, response) {
     const faculty = await Faculty.create({
       facultyId: normalizedFacultyId,
       password: String(password).trim(),
+      email: normalizedEmail,
       name: normalizedFacultyId,
       department: 'CSE',
       phone: '',

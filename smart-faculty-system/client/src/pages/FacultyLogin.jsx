@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { loginFaculty, registerFaculty } from '../services/facultyApi.js'
+import { loginFaculty, registerFaculty, requestPasswordReset } from '../services/facultyApi.js'
 
 export default function FacultyLogin({ onLogin }) {
   const [mode, setMode] = useState('login')
   const [facultyId, setFacultyId] = useState('')
   const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+  const [forgot, setForgot] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -29,7 +31,8 @@ export default function FacultyLogin({ onLogin }) {
       const request = mode === 'register' ? registerFaculty : loginFaculty
       const response = await request({
         facultyId: cleanedFacultyId,
-        password: password.trim()
+        password: password.trim(),
+        email
       })
 
       onLogin(response)
@@ -40,13 +43,27 @@ export default function FacultyLogin({ onLogin }) {
     }
   }
 
+  async function handleForgot(event) {
+    event.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const result = await requestPasswordReset('faculty', facultyId)
+      setError(result.message)
+    } catch (requestError) {
+      setError(requestError.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section className="page-section login-section">
       <div className="login-panel">
-        <h2>{mode === 'login' ? 'Faculty login' : 'Create faculty account'}</h2>
-        <p className="section-description">Use your faculty ID and password to update your availability.</p>
+        <h2>{forgot ? 'Reset faculty password' : mode === 'login' ? 'Faculty login' : 'Create faculty account'}</h2>
+        <p className="section-description">{forgot ? 'We will email a reset link to the address registered with this faculty ID.' : 'Use your faculty ID and password to update your availability.'}</p>
 
-        <div className="toggle-group" aria-label="Faculty authentication mode">
+        {!forgot && <div className="toggle-group" aria-label="Faculty authentication mode">
           <button
             type="button"
             className={mode === 'login' ? 'toggle-button toggle-button--active' : 'toggle-button'}
@@ -61,9 +78,14 @@ export default function FacultyLogin({ onLogin }) {
           >
             Register
           </button>
-        </div>
+        </div>}
 
-        <form className="login-form" onSubmit={handleSubmit}>
+        <form className="login-form" onSubmit={forgot ? handleForgot : handleSubmit}>
+          {!forgot && mode === 'register' && <label>
+            Email address
+            <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" required />
+          </label>}
+
           <label>
             Faculty ID
             <input
@@ -75,7 +97,7 @@ export default function FacultyLogin({ onLogin }) {
             />
           </label>
 
-          <label>
+          {!forgot && <label>
             Password
             <input
               type="password"
@@ -84,14 +106,15 @@ export default function FacultyLogin({ onLogin }) {
               placeholder="Enter your password"
               required
             />
-          </label>
+          </label>}
 
           <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Please wait...' : mode === 'login' ? 'Login' : 'Register'}
+            {loading ? 'Please wait...' : forgot ? 'Send reset link' : mode === 'login' ? 'Login' : 'Register'}
           </button>
 
-          {error && <p className="message message--error">{error}</p>}
+          {error && <p className={error.startsWith('If the account') ? 'success-message' : 'message message--error'}>{error}</p>}
         </form>
+        {mode === 'login' && <button type="button" className="text-action" onClick={() => { setForgot(!forgot); setError('') }}>{forgot ? 'Back to login' : 'Forgot password?'}</button>}
       </div>
     </section>
   )
